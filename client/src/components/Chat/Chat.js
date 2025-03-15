@@ -9,10 +9,8 @@ import Input from '../Input/Input';
 
 import './Chat.css';
 
-const ENDPOINT = 'https://chat-app-backend-k23e.onrender.com/';
-
+const ENDPOINT = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:5000/';
 let socket;
-
 const Chat = ({ location }) => {
   const [name, setName] = useState('');
   const [room, setRoom] = useState('');
@@ -22,9 +20,8 @@ const Chat = ({ location }) => {
 
   useEffect(() => {
     const { name, room } = queryString.parse(location.search);
-
     socket = io(ENDPOINT);
-
+    
     setRoom(room);
     setName(name);
 
@@ -33,6 +30,7 @@ const Chat = ({ location }) => {
         alert(error);
       }
     });
+
   }, [ENDPOINT, location.search]);
   
   useEffect(() => {
@@ -43,7 +41,7 @@ const Chat = ({ location }) => {
     socket.on("roomData", ({ users }) => {
       setUsers(users);
     });
-}, []);
+  }, []);
 
   const sendMessage = (event) => {
     event.preventDefault();
@@ -52,6 +50,14 @@ const Chat = ({ location }) => {
       socket.emit('sendMessage', message, () => setMessage(''));
     }
   }
+
+  // Add status listener
+  useEffect(() => {
+    socket.on('user status', ({ user, status }) => {
+      // Update user status in the UI
+    });
+  }, []);
+
 
   return (
     <div className="outerContainer">
